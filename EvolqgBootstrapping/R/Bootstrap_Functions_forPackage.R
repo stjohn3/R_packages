@@ -314,7 +314,7 @@ boot.matrix.distance<-function(d, i, matrix.1.pop, matrix.2.pop){
 #' @param matrix.2.pop DEFAULT=NULL, only enter population names (in quotes) for functions that require two populations for calculations. 
 #' @return boot data frame from which you can make further calculations
 #' @export
-mean.and.ci<-function(enter.dataframe, iterations, which.function, stat=NULL, matrix.1.pop=NULL,matrix.2.pop=NULL){
+meanandci<-function(enter.dataframe, iterations, which.function, stat=NULL, matrix.1.pop=NULL,matrix.2.pop=NULL){
   
   #uses this print for MeanMatrixStatistics
   if(is.null(matrix.1.pop)==TRUE){
@@ -352,4 +352,3 @@ mean.and.ci<-function(enter.dataframe, iterations, which.function, stat=NULL, ma
     
   }
 }
-
