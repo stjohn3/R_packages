@@ -2,8 +2,8 @@ Package: EvolqgBootstrapping
 Title: bootstraps functions from the evolqgpackage
 Version: 0.0.0.9000
 Authors@R: 
-    person("Michelle", "St. John", , " ", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("Michelle", "St. John", , "michelle.e.stjohn@gmail.com", role ="cre",
+           comment = "email me for questions")
 Description: What the package does (one paragraph).
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
