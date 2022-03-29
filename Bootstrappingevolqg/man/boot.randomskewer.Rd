@@ -9,7 +9,7 @@ boot.randomskewer(d, i, measurement, matrix.1.pop, matrix.2.pop)
 \arguments{
 \item{d}{dataframe}
 
-\item{i}{iteration number that will be provided by the boot package}
+\item{i}{iteration number that will be provided by the boot package (you do not enter anything)}
 
 \item{measurement}{one of the following statistics: "correlation", "probability", or "correlation_sd"}
 

@@ -16,7 +16,7 @@ meanandci(
 \arguments{
 \item{enter.dataframe}{dataframe to be bootstrapped. The type of dataframe is dependent upon the function you will use}
 
-\item{iterations}{iteration number that will be provided to the boot package}
+\item{iterations}{iteration number that will be provided to the boot package (User enters these and this values is used as i in other functions)}
 
 \item{which.function}{name of the function you wish to bootstrap: boot.meanmatrixstats, boot.randomskewer, boot.pca.similarity, or boot.matrix.distance (no quotes need here)}
 

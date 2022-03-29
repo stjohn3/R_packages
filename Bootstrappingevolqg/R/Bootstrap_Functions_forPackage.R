@@ -6,7 +6,7 @@
 #' 
 #'
 #' @param d dataframe
-#' @param i iteration number that will be provided by the boot package
+#' @param i iteration number that will be provided by the boot package (you do not enter anything)
 #' @param measurement one of the following statistics: "MeanSquaredCorrelation", "pc1.percent", "ICV","EigenSd","respondability","evolvability","conditional.evolvability", "autonomy", "flexibility", or "constraints"
 #' @return boot data frame from which you can make further calculations
 #' @export
@@ -124,7 +124,7 @@ boot.meanmatrixstats<- function(d, i, measurement){
 
 #'
 #' @param d dataframe
-#' @param i iteration number that will be provided by the boot package
+#' @param i iteration number that will be provided by the boot package (you do not enter anything)
 #' @param measurement one of the following statistics: "correlation", "probability", or "correlation_sd"
 #' @param matrix.1.pop a character that gives the name of the first population (will be used for filtering)
 #' @param matrix.2.pop a character that gives the name of the second population (will be used for filtering)
@@ -221,7 +221,7 @@ boot.randomskewer<-function(d, i, measurement, matrix.1.pop, matrix.2.pop){
 
 #'
 #' @param d dataframe
-#' @param i iteration number that will be provided by the boot package
+#' @param i iteration number that will be provided by the boot package (you do not enter anything)
 #' @param matrix.1.pop a character that gives the name of the first population (will be used for filtering)
 #' @param matrix.2.pop a character that gives the name of the second population (will be used for filtering)
 #' @return boot data frame from which you can make further calculations
@@ -267,7 +267,7 @@ boot.pca.similarity<-function(d, i, matrix.1.pop, matrix.2.pop){
 
 #'
 #' @param d dataframe
-#' @param i iteration number that will be provided by the boot package
+#' @param i iteration number that will be provided by the boot package (you do not enter anything)
 #' @param matrix.1.pop a character that gives the name of the first population (will be used for filtering)
 #' @param matrix.2.pop a character that gives the name of the second population (will be used for filtering)
 #' @return boot data frame from which you can make further calculations
@@ -306,7 +306,7 @@ boot.matrix.distance<-function(d, i, matrix.1.pop, matrix.2.pop){
 #' This function can be used to print the mean and upper & lower confidence intervals for any of the above functions in one go
 #'
 #' @param enter.dataframe dataframe to be bootstrapped. The type of dataframe is dependent upon the function you will use
-#' @param iterations iteration number that will be provided to the boot package
+#' @param iterations iteration number that will be provided to the boot package (User enters these and this values is used as i in other functions)
 #' @param which.function name of the function you wish to bootstrap: boot.meanmatrixstats, boot.randomskewer, boot.pca.similarity, or boot.matrix.distance (no quotes need here)
 #' @param stat DEFAULT=NULL, for function with only 1 calculation (PCAsimilarity or MatrixDistance) this parameter can be left blank. For functions that calculate many
 #' different statistics (MeanMatrixStatistic or RandomSkewers), you should enter the name of the stat you'd like to calculate here in quotes (see other function help pages for more info).

@@ -9,7 +9,7 @@ boot.matrix.distance(d, i, matrix.1.pop, matrix.2.pop)
 \arguments{
 \item{d}{dataframe}
 
-\item{i}{iteration number that will be provided by the boot package}
+\item{i}{iteration number that will be provided by the boot package (you do not enter anything)}
 
 \item{matrix.1.pop}{a character that gives the name of the first population (will be used for filtering)}
 

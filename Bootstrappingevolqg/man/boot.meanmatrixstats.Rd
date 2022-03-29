@@ -9,7 +9,7 @@ boot.meanmatrixstats(d, i, measurement)
 \arguments{
 \item{d}{dataframe}
 
-\item{i}{iteration number that will be provided by the boot package}
+\item{i}{iteration number that will be provided by the boot package (you do not enter anything)}
 
 \item{measurement}{one of the following statistics: "MeanSquaredCorrelation", "pc1.percent", "ICV","EigenSd","respondability","evolvability","conditional.evolvability", "autonomy", "flexibility", or "constraints"}
 }
