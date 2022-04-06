@@ -1,0 +1,27 @@
+Package: BceenetPCAPackage
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("Michelle", "St. John", , "stjohn3@berkley.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: This package takes a FASTA import and produces 1) a PCA describing variation from the uploaded sequence, and 2) and .csv file that contains rough groupings of individual IDs according to where they fall on PC1 and PC2. NOTE: the .csv file will be saved to wherever your working directory is set to. 
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Imports:
+	base,
+	datasets,
+	graphics,
+	grDevices,
+	methods,
+	stats,
+	seqinr,
+	tidyverse,
+	dplyr,
+	magrittr,
+	factoextra,
+	stringr,
+	utils,
+	ggrepel
