@@ -140,7 +140,7 @@ run.pca.function<-function(data, title.input){
     #       specimen.id=row.names(PCA.ggplot.data))
     
   
-  Final.PCA.plot<-ggplot(PCA.ggplot.data, aes(x=PC1, y=PC2, label=row.names(PCA.ggplot.data)))+
+  Final.PCA.plot<-ggplot(as.data.frame(PCA.ggplot.data), aes(x=PC1, y=PC2, label=row.names(PCA.ggplot.data)))+
     geom_point(size=4,position = position_jitter(width=.5, height=.5), alpha=.6)+
     geom_label_repel()
     
