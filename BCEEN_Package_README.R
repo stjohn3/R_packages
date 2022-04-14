@@ -1,9 +1,10 @@
-#how to install package once
+#how to install package 
 devtools::install_github("stjohn3/R_packages",subdir="BceenetPCAPackage")
 
-#how to load package in the future
+#how to load package 
 library(BceenetPCAPackage)
 
+#Look at the help page
 ?BceenetPCAPackage::run.pca.function
 
 ##Example

@@ -352,3 +352,49 @@ meanandci<-function(enter.dataframe, iterations, which.function, stat=NULL, matr
     
   }
 }
+
+#' Prints the mean and confidence intervals for any of the above functions
+#'
+#' This function can be used to print the mean and upper & lower confidence intervals for any of the above functions in one go, but it is specifcally
+#' meant to be used with the small datasets for the PCAsimilarity comparison.
+#'
+#' @param enter.dataframe dataframe to be bootstrapped. The type of dataframe is dependent upon the function you will use
+#' @param iterations iteration number that will be provided to the boot package (User enters these and this values is used as i in other functions)
+#' @param which.function name of the function you wish to bootstrap: boot.meanmatrixstats, boot.randomskewer, boot.pca.similarity, or boot.matrix.distance (no quotes need here)
+#' @param stat DEFAULT=NULL, for function with only 1 calculation (PCAsimilarity or MatrixDistance) this parameter can be left blank. For functions that calculate many
+#' different statistics (MeanMatrixStatistic or RandomSkewers), you should enter the name of the stat you'd like to calculate here in quotes (see other function help pages for more info).
+#' @param matrix.1.pop DEFAULT=NULL, only enter population names (in quotes) for functions that require two populations for calculations. 
+#' @param matrix.2.pop DEFAULT=NULL, only enter population names (in quotes) for functions that require two populations for calculations. 
+#' @return boot data frame from which you can make further calculations
+#' @export
+meanandci.werid.PCAdfs<-function(enter.dataframe, iterations, which.function, stat=NULL, matrix.1.pop=NULL,matrix.2.pop=NULL){
+  #uses this part for PCAsimilarity and MatrixDistance
+  boot.mean<-boot(d=enter.dataframe,
+                  statistic=which.function,
+                  R=iterations,
+                  matrix.1.pop=matrix.1.pop,
+                  matrix.2.pop=matrix.2.pop)
+  
+  boot.mean$t%>%
+    as.data.frame()->dataset
+  
+  names(dataset)<-"boot.mean.estimates"
+  
+  dataset%<>%
+    filter(boot.mean.estimates!="NaN")%>%
+    mutate(boot.mean.estimates=as.numeric(boot.mean.estimates))
+  
+  n<-nrow(dataset)
+  calculated.mean<-boot.mean$t0
+  s<-sd(as.numeric(dataset$boot.mean.estimates))
+  
+  margin <- qt(0.975,df=n-1)*s/sqrt(n)
+  
+  lowerinterval <- calculated.mean - margin
+  
+  upperinterval <- calculated.mean + margin
+  
+  print(paste("confidence intervals are:", lowerinterval,upperinterval))
+  
+  
+}
