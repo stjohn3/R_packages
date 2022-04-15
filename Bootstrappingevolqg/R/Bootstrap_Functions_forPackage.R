@@ -394,6 +394,8 @@ meanandci.werid.PCAdfs<-function(enter.dataframe, iterations, which.function, st
   
   upperinterval <- calculated.mean + margin
   
+  print(paste("the mean is:",boot.mean$t0))
+  
   print(paste("confidence intervals are:", lowerinterval,upperinterval))
   
   
