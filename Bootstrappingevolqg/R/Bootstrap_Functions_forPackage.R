@@ -227,33 +227,49 @@ boot.randomskewer<-function(d, i, measurement, matrix.1.pop, matrix.2.pop){
 #' @return boot data frame from which you can make further calculations
 #' @export
 boot.pca.similarity<-function(d, i, matrix.1.pop, matrix.2.pop){
+  
+  #Get row lengths for each data frame
   d[i,]%>%
     filter(dataframe==matrix.1.pop)%>%
-    nrow()->length.matrix1
-  #print(length.matrix1)
+    nrow(.)->length.matrix1
   
   d[i,]%>%
     filter(dataframe==matrix.2.pop)%>%
-    nrow()->length.matrix2
+    nrow(.)->length.matrix2
+  
+  #print("these are the number of rows in each matrix:")
+  #print(length.matrix1)
   #print(length.matrix2)
   
-  d[i,]%>%
-    filter(dataframe==matrix.1.pop)%>%
-    dplyr::select(2:19)%>%
-    slice(1:length.matrix1)%>%
-    cov(.)%>%
-    as.matrix(.)->Matrix.1
   
+  if(length.matrix1<2 | length.matrix2<2){
+    return("NaN")
+  } 
   
-  d[i,]%>%
-    filter(dataframe==matrix.2.pop)%>%
-    dplyr::select(2:19)%>%
-    slice(1:length.matrix2)%>%
-    cov(.)%>%
-    as.matrix(.)->Matrix.2    
+  else{
+    #Filter for the first population, select columns 2-19, and then select rows 1:length of matrix
+    # print("calculate covariance matrices for pop 1")
+    d[i,]%>%
+      filter(dataframe==matrix.1.pop)%>%
+      dplyr::select(2:19)%>%
+      dplyr::slice(1:length.matrix1)%>%
+      cov(.)%>%
+      as.matrix(.)->Matrix.1
+    
+    #print("calculate covariance matrices for pop 2")
+    d[i,]%>%
+      filter(dataframe==matrix.2.pop)%>%
+      dplyr::select(2:19)%>%
+      dplyr::slice(1:length.matrix2)%>%
+      cov(.)%>%
+      as.matrix(.)->Matrix.2    
+    
+    #print("running actual comparison")
+    
+    PCAsimilarity(Matrix.1, Matrix.2)%>%
+      return()  
+  }    
   
-  PCAsimilarity(Matrix.1, Matrix.2)%>%
-    return()  
 }
 
 #' Bootstrapping the MatrixDistance function from the evolqg package
