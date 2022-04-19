@@ -22,13 +22,11 @@ shelf(base,
       factoextra,
       stringr,
       utils,
-      ggrepel)
+      ggrepel,
+      fuzzyjoin,
+      RColorBrewer)
 
 setwd("~/Desktop/BCEEnet_ShinyApp/")
-fasta.data.glau<-read.alignment(file = "./MakePhylogeny/Glaucomys_ 2192835840/Full_Fasta",format="fasta")
-
-run.pca.function(data=fasta.data.glau, title.input="PUT YOUR TITLE HERE" )
-
 
 run.pca.function("./MakePhylogeny/Glaucomys_ 2192835840/MUSCLE_Fasta", "Glaucomys" ,title.input = "Glaucomys")
 run.pca.function("./MakePhylogeny/Nlepida_ 112046140/MUSCLE_file", "lepida" ,title.input = "N. lepida")
