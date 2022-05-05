@@ -11,35 +11,28 @@
 #'@export
 assign.individuals.to.ecoregions<-function(file.path.fasta, Specimen.name=character()){
   
-  Final.df.Graph<<-NULL
-  
-  #filter ecoregion dataframe to include the speciemen group you are working on
-  
-  working.label.df<-ecoregions%>%
-    #dplyr::filter(str_detect(scientific, Specimen.name)==TRUE)%>%
-    dplyr::select(catalognum, New_label)%>%
-    dplyr::mutate(catalog.number.only=str_extract(catalognum, "(?<=:)[0-9]+"))%>%
-    dplyr::mutate(catalog.number.only=ifelse(is.na(catalog.number.only)==TRUE, catalognum, catalog.number.only))
-  
   #get fasta headers to extract voucher numbers
   read.fasta(file = file.path(file.path.fasta))->temp.fasta
   getAnnot(temp.fasta)%>%unlist()%>%as.data.frame()->annotation.list
   names(annotation.list)<-"annotation"
   
-  
+  #print(annotation.list)
   matched.data.frame<<-NULL
   
   #print("start for loop")
-  
   for(i in 1:length(annotation.list$annotation)){
     #print(i)
     #print(annotation.list$annotation[i])
     #Fasta
     scan(text = annotation.list$annotation[i], what = "", quiet=TRUE)%>%as.data.frame()->to.match
+    
+    to.match%<>%
+      str_split(., "MVZ")%>%as.data.frame()
+    
     names(to.match)<-"potential.catalognumber"
     
     #print("from scan")
-    #print(head(to.match))
+    #print((to.match))
     
     to.match%<>%
       filter(!stringr::str_detect(to.match$potential.catalognumber, ">"),
@@ -50,60 +43,29 @@ assign.individuals.to.ecoregions<-function(file.path.fasta, Specimen.name=charac
       mutate(potential.catalognumber=str_extract(potential.catalognumber, "[0-9]+"))%>%
       na.omit()
     
-    
-    #print(head(to.match))
-    #print(head(working.label.df))
-    
     if(nrow(to.match)==0){
-      #print("add row")
-      to.match<-data.frame(potential.catalognumber=NA)
+      fill.missing<-data.frame(potential.catalognumber="Missing")
+      matched.data.frame<<-rbind(matched.data.frame, fill.missing)
     }
+    else{matched.data.frame<<-rbind(matched.data.frame, to.match)}
     
-    #print("after filtering")
-    #print(head(to.match))
-    
-    stringdist_left_join(to.match, working.label.df, 
-                         by=c("potential.catalognumber"="catalog.number.only"), 
-                         method=c("hamming"),max_dist=.5)->Fasta.Geography.matches
-    
-    #print(Fasta.Geography.matches)
-    
-    if(nrow(Fasta.Geography.matches)>1){
-      Fasta.Geography.matches%<>%
-        distinct()%>%
-        dplyr::slice(1)
-    }
-    
-    #print(Fasta.Geography.matches)
-    
-    if(nrow(Fasta.Geography.matches)==0){
-      #print("no match")
-      data.frame(potential.catalognumber=to.match$potential.catalognumber,
-                 catalognum=NA,
-                 New_label=NA,
-                 catalog.number.only=NA)->int
-      matched.data.frame<-rbind(matched.data.frame,int)}
-    else{
-      data.frame(potential.catalognumber=to.match$potential.catalognumber,
-                 catalognum=Fasta.Geography.matches$catalognum,
-                 New_label=Fasta.Geography.matches$New_label,
-                 catalog.number.only=Fasta.Geography.matches$catalog.number.only)->int
-      matched.data.frame<<-rbind(matched.data.frame,int)
-    }
   }
   
-  #print("finish loop")
   
+  working.label.df<-ecoregions%>%
+    filter(grepl(Specimen.name, scientific))%>%
+    dplyr::select(catalognum,decimallat,decimallon )%>%
+    dplyr::mutate(catalog.number.only=str_extract(catalognum, "(?<=:)[0-9]+"))%>%
+    dplyr::mutate(catalog.number.only=ifelse(is.na(catalog.number.only)==TRUE, catalognum, catalog.number.only))%>%
+    unique()
   
-  Final.df.Graph<<-left_join(matched.data.frame, ecoregion.colors, by=c("New_label"="New_label"))
-  
-  Final.df.Graph$New_label<<-replace_na(Final.df.Graph$New_label, "Unassigned")
-  
-  
-  return(Final.df.Graph)
-  
+  stringdist_left_join(matched.data.frame,working.label.df,  
+                       by=c("potential.catalognumber"="catalog.number.only"),
+                       method = c("lv"),
+                       max_dist = 0)%>%
+    dplyr::select(potential.catalognumber,catalognum,decimallat,decimallon)->out
+  return(out)
 }
-
 
 #' Make PCA
 #'
@@ -119,13 +81,13 @@ assign.individuals.to.ecoregions<-function(file.path.fasta, Specimen.name=charac
 #'groups individuals into clusters so you can match points on the PCA to an individual. 
 #'@export
 run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
-  assign.individuals.to.ecoregions(file.path.fasta, Specimen.name)
+  lat.long.dataframe<-assign.individuals.to.ecoregions(file.path.fasta, Specimen.name)
   
   fasta.data<-read.alignment(file = file.path(file.path.fasta),format="fasta")
-  
   ####get number of individuals in dataset####
   num.inds<-as.numeric(fasta.data$nb)
   
+  #print(num.inds)
   ####get number of loci in the data####
   num.loci<-str_length(fasta.data$seq[[2]])
   
@@ -200,14 +162,13 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
                  values_to = "Proportion")%>%
     group_by(position)%>%
     dplyr::summarise(similarity=max(Proportion))%>%
-    filter(similarity<=.9)->list.of.positions.to.keep.for.PCA
+    filter(similarity<=.95)->list.of.positions.to.keep.for.PCA
   
   ####PCA####
   #select columns
   store.df%>%
     dplyr::select(list.of.positions.to.keep.for.PCA$position)%>%
-    dplyr::select(starts_with("X0"))->pca.graph.data
-  
+    dplyr::select(starts_with("X"))->pca.graph.data
   
   replace.na.custom<-function(data){
     replace_na(data, as.numeric(0.05))
@@ -235,7 +196,7 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
   
   PCA.ggplot.data<-locus.pca$x[,c(1:2)]
   
-  PCA.ggplot.data<-cbind(PCA.ggplot.data, Final.df.Graph)
+  PCA.ggplot.data<-cbind(PCA.ggplot.data, lat.long.dataframe)
   
   data.frame(PC1.group=round(PCA.ggplot.data[,1], digits=0),
              PC2.group=round(PCA.ggplot.data[,2], digits=0),
@@ -245,20 +206,32 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
                      list.IDs=str_c(Specimen.ID, collapse = ","))%>%
     write.csv(., file.path("./", paste0(toString(title.input),"_table.csv")))
   
-  #mutate(PC1.group=round("PC1", digits=0),
-  #       PC2.group=round("PC2", digits=0),
-  #       specimen.id=row.names(PCA.ggplot.data))
+  ### Color Calculations ####
+  max.lat<-42
+  max.long<-124
   
-  #print("Look at PCA df")
-  color.list<-as.character(PCA.ggplot.data$assigned.color)
-  length.colors<-length(color.list)
   
-  #print(str(PCA.ggplot.data))
+  PCA.ggplot.data%<>%
+    mutate(xcol=decimallat/ max.lat,
+           ycol=(abs(decimallon)/ max.long))%>%
+    mutate(xcol=rescale(xcol, to=c(0,1)),
+           ycol=rescale(ycol, to=c(0,1)))
   
-  Final.PCA.plot<-ggplot(data=PCA.ggplot.data, aes(x=PC1, y=PC2, colour=New_label))+
-    geom_point(data=PCA.ggplot.data, aes(x=PC1, y=PC2,colour=New_label),
+  PCA.ggplot.data$xcol<-replace_na(PCA.ggplot.data$xcol, 0)
+  PCA.ggplot.data$ycol<-replace_na(PCA.ggplot.data$ycol, 0)
+  
+  PCA.ggplot.data%<>%
+    mutate(color.assignment=ifelse(is.na(decimallon)=="TRUE", "#808080", rgb(1, xcol, ycol)))
+  
+  
+  col <- PCA.ggplot.data$color.assignment%>%as.data.frame()%>%unique()
+  names(col)<-"color"
+  
+  
+  Final.PCA.plot<-ggplot(data=PCA.ggplot.data, aes(x=PC1, y=PC2, colour=color.assignment))+
+    geom_point(data=PCA.ggplot.data, aes(x=PC1, y=PC2,colour=color.assignment),
                size=4,position = position_jitter(width=.5, height=.5), alpha=.6)+
-    scale_color_manual(values = brewer.pal(length(unique(PCA.ggplot.data$New_label)), "Paired"))
+    scale_colour_manual(values = col$color)
   
   
   
@@ -269,7 +242,7 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
   Final.PCA.plot+
     ggtitle(toString(title.input))+
     theme_classic(18)+
-    theme(legend.position = "bottom")%>%
+    theme(legend.position = "none")%>%
     return()
   
 }
