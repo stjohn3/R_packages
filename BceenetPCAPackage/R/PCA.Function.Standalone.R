@@ -207,22 +207,34 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
     write.csv(., file.path("./", paste0(toString(title.input),"_table.csv")))
   
   ### Color Calculations ####
-  max.lat<-42
-  max.long<-124
+  max.lat<-43
+  min.lat<-31
+  max.lon<-125
+  min.lon<-108
+  
+  
+  rescale.data.frame<-data.frame(PC1=c(1,1),
+                                 PC2=c(1,1),
+                                 potential.catalognumber=c("Rescale","Rescale"),
+                                 catalognum=c(0,0),
+                                 decimallat=c(min.lat, max.lat),
+                                 decimallon=c(min.lon, max.lon))
+  PCA.ggplot.data<-rbind(PCA.ggplot.data, rescale.data.frame)
   
   
   PCA.ggplot.data%<>%
     mutate(xcol=decimallat/ max.lat,
-           ycol=(abs(decimallon)/ max.long))%>%
+           ycol=(abs(decimallon)/ max.lon))%>%
     mutate(xcol=rescale(xcol, to=c(0,1)),
-           ycol=rescale(ycol, to=c(0,1)))
+           ycol=rescale(ycol, to=c(0,1)))%>%
+    filter(potential.catalognumber!="Rescale")
   
   PCA.ggplot.data$xcol<-replace_na(PCA.ggplot.data$xcol, 0)
   PCA.ggplot.data$ycol<-replace_na(PCA.ggplot.data$ycol, 0)
   
+  
   PCA.ggplot.data%<>%
     mutate(color.assignment=ifelse(is.na(decimallon)=="TRUE", "#808080", rgb(1, xcol, ycol)))
-  
   
   col <- PCA.ggplot.data$color.assignment%>%as.data.frame()%>%unique()
   names(col)<-"color"
@@ -230,7 +242,7 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
   
   Final.PCA.plot<-ggplot(data=PCA.ggplot.data, aes(x=PC1, y=PC2, colour=color.assignment))+
     geom_point(data=PCA.ggplot.data, aes(x=PC1, y=PC2,colour=color.assignment),
-               size=4,position = position_jitter(width=.5, height=.5), alpha=.6)+
+               size=4,position = position_jitter(width=.5, height=.5), alpha=.8)+
     scale_colour_manual(values = col$color)
   
   
@@ -246,4 +258,3 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
     return()
   
 }
-
