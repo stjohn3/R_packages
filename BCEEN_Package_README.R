@@ -24,7 +24,8 @@ shelf(base,
       utils,
       ggrepel,
       fuzzyjoin,
-      RColorBrewer)
+      RColorBrewer,
+      scales)
 
 #set the working directory where you want the package to output the .csv
 setwd("~/Desktop/BCEEnet_ShinyApp/")

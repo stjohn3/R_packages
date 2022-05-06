@@ -24,7 +24,10 @@ Imports:
 	factoextra,
 	stringr,
 	utils,
-	ggrepel
+	ggrepel,
+	fuzzyjoin,
+	RColorBrewer,
+	scales
 Depends: 
     R (>= 2.10)
 LazyData: true
