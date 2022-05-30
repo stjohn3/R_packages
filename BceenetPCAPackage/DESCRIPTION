@@ -27,7 +27,9 @@ Imports:
 	ggrepel,
 	fuzzyjoin,
 	RColorBrewer,
-	scales
+	scales,
+	sjmisc,
+	ggpubr
 Depends: 
     R (>= 2.10)
 LazyData: true

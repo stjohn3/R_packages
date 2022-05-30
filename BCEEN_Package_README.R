@@ -5,7 +5,7 @@ devtools::install_github("stjohn3/R_packages",subdir="BceenetPCAPackage", force=
 library(BceenetPCAPackage)
 
 #Look at the help page
-?BceenetPCAPackage::run.pca.function
+#?BceenetPCAPackage::run.pca.function
 
 ##Example
 library(librarian)
@@ -21,29 +21,61 @@ shelf(base,
       magrittr,
       factoextra,
       stringr,
+      stringi,
       utils,
       ggrepel,
       fuzzyjoin,
       RColorBrewer,
-      scales)
+      scales,
+      sjmisc,
+      ggpubr)
 
-#set the working directory where you want the package to output the .csv
-setwd("~/Desktop/BCEEnet_ShinyApp/")
+#Run 
+setwd("/Users/mickey7210/Desktop/BCEEnet_ShinyApp/Check_Matching_IDs/")
 
-run.pca.function("~/Desktop/BCEEnet_ShinyApp/MakePhylogeny/Glaucomys_ 2192835840/MUSCLE_Fasta", "Glaucomys" ,title.input = "Glaucomys")->Glaucomys
-run.pca.function("./MakePhylogeny/Nlepida_ 112046140/MUSCLE_file", "lepida" ,title.input = "N. lepida")->lepida
-run.pca.function("./MakePhylogeny/Mcalifornicus_ 1073931755/MUSCLE_file", "Microtus" ,title.input = "californicus 107")->Microtus.107
-run.pca.function("./MakePhylogeny/Mcalifornicus_1428083543/MUSCLE_file", "Microtus" ,title.input = "californicus 142")->Microtus.142
-run.pca.function("./MakePhylogeny/Mcalifornicus_ 148727633/MUSCLE_file", "Microtus" ,title.input = "californicus 148")->Microtus.148
+Files<-c(
+   "./AlignedFastaFiles/Taricha_75857949.fasta",
+   "./AlignedFastaFiles/Elgaria.aligned.fasta",
+   "./AlignedFastaFiles/Baeolophus_50844830.fasta",
+   "./AlignedFastaFiles/Cyanositta_CA_Cicero_amendedheader.fasta",
+   "./AlignedFastaFiles/Charina.aligned.fasta",
+   "./AlignedFastaFiles/Diadophis.aligned.fasta",
+   "./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",
+   "./AlignedFastaFiles/Microtus_californicus_1073931755_aligned.fasta",
+   "./AlignedFastaFiles/Microtus_californicus_148727633.fasta",
+   "./AlignedFastaFiles/Glaucomys_2192835840_aligned.fasta",
+   "./AlignedFastaFiles/Thomomys.aligned.fasta",
+   "./AlignedFastaFiles/Contia.aligned.fasta",
+   "./AlignedFastaFiles/Batrachoseps_675617998.fasta",
+   "./AlignedFastaFiles/Sorex_1764667868.fasta",
+   "./AlignedFastaFiles/Ensatina_eschscholtzii_339521622_aligned_original.fasta",
+   "./AlignedFastaFiles/Batrachoseps_nigriventris_1867190792.fasta",
+   "./AlignedFastaFiles/Aneides_lugubris_33641515.fasta",
+   "./AlignedFastaFiles/Batrachoseps_407098425.fasta"
+)
+Species<-c("Taricha",
+           "Elgaria",
+           "Baeolophus",
+           "Cyanositta",
+           "Charina",
+           "Diadophis",
+           "Artemisiospiza",
+           "Microtus_1073",
+           "Microtus_1487",
+           "Glaucomys",
+           "Thomomys",
+           "Contia",
+           "Batrachoseps",
+           "Sorex",
+           "Ensatina",
+           "Batrachoseps",
+           "Aneides",
+           "Batrachoseps")
 
-## Example of how to save graphs directly to a folder
-library(ggpubr)
 
-ggexport(Glaucomys, filename="~/Desktop/BCEEnet_ShinyApp/DataSets/May_2022/Glaucomys.pdf")
-ggexport(lepida, filename="~/Desktop/BCEEnet_ShinyApp/DataSets/May_2022/lepida.pdf")
-ggexport(Microtus.107, filename="~/Desktop/BCEEnet_ShinyApp/DataSets/May_2022/Microtus.107.pdf")
-ggexport(Microtus.142, filename="~/Desktop/BCEEnet_ShinyApp/DataSets/May_2022/Microtus.142.pdf")
-ggexport(Microtus.148, filename="~/Desktop/BCEEnet_ShinyApp/DataSets/May_2022/Microtus.148.pdf")
+for(i in 1:length(Files)){
+   fasta.to.pca(Files[i], Species[i])
+}
 
 
 

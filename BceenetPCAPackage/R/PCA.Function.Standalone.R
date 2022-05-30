@@ -1,89 +1,195 @@
-#' make file to assign groups
+#' Input fasta file, get annotation strip out potential IDs
 #'
-#' This function loads a file as a matrix. It assumes that the first column
-#' contains the rownames and the subsequent columns are the sample identifiers.
-#' Any rows with duplicated row names will be dropped with the first one being
-#' kepted.
+#' This function takes a fasta file and outputs a dataframe containing potential ID's to be matched with the vertnet data
 #'
-#'@param file.path Place the file path to your aligned fastafile here... PUT IT IN QUOTES
-#'@param Specimen.name What specimen are we working with? choose one of the following: "Aneides lugubris,Artemisiospiza belli belli,Batrachoseps nigriventris,Batrachoseps incognitus,Batrachoseps luciae,Batrachoseps gavilanensis,Batrachoseps attenuatus,Batrachoseps sp.,Charina bottae bottae,Charina bottae,Cyanocitta stelleri carbonacea,Diadophis punctatus vandenburghii,Elgaria multicarinata multicarinata,Elgaria multicarinata,Microtus californicus californicus,Sorex ornatus californicus,Sorex ornatus salarius,Taricha torosa,Thomomys bottae navus,Batrachoseps major,Diadophis punctatus,Microtus californicus sanctidiegi,Neotoma bryanti intermedia,Sorex ornatus ornatus,Thomomys bottae bottae,Microtus californicus kernensis,Microtus californicus aestuarinus,Sorex ornatus,Sorex ornatus sinuosus,Thomomys bottae pascalis,Contia tenuis,Contia longicaudae,Cyanocitta stelleri frontalis,Elgaria coerulea,Ensatina eschscholtzii oregonensis,Microtus californicus eximius,Sorex vagrans vagrans,Sorex ornatus sinuosus x Sorex vagrans vagrans,Taricha rivularis,Thomomys bottae laticeps,Artemisiospiza belli canescens,Elgaria multicarinata webbii,Microtus californicus mohavensis,Neotoma lepida lepida,Thomomys bottae perpallidus,Thomomys bottae riparius,Thomomys bottae albatus,Microtus californicus vallicola,Elgaria panamintina,Baeolophus inornatus inornatus,Glaucomys sabrinus flaviventris,Glaucomys sabrinus fuliginosus,Glaucomys sabrinus lascivus,Taricha granulosa,Baeolophus ridgwayi,Ensatina eschscholtzii platensis,Batrachoseps bramei,Batrachoseps gregarius,Batrachoseps relictus,Batrachoseps simatus,Batrachoseps stebbinsi,Batrachoseps regius,Batrachoseps altasierrae,Batrachoseps robustus,Batrachoseps diabolicus,Batrachoseps kawia,Ensatina eschscholtzii ssp.,Glaucomys sabrinus LASCIVUS,Neotoma bryanti x Neotoma lepida,Neotoma macrotis streatori,Batrachoseps minor,Neotoma fuscipes bullatior,Charina umbratica,Diadophis punctatus modestus,Glaucomys sabrinus californicus,Thomomys bottae nigricans
-#'@return Returns a dataframe matching IDs to locations and assigns them colors
+#'@param file.path.fasta full path to fasta files. 
+#'@return Returns a dataframe of potential ID's to match with vernet data
 #'@export
-assign.individuals.to.ecoregions<-function(file.path.fasta, Specimen.name=character()){
-  
-  #get fasta headers to extract voucher numbers
+get.potential.voucher.numbers<-function(file.path.fasta){
+  #read in Fasta file
   read.fasta(file = file.path(file.path.fasta))->temp.fasta
-  getAnnot(temp.fasta)%>%unlist()%>%as.data.frame()->annotation.list
-  names(annotation.list)<-"annotation"
   
-  #print(annotation.list)
-  matched.data.frame<<-NULL
+  #Get the headers and make into dataframe
+  getAnnot(temp.fasta) %>%
+    unlist() %>%
+    as.data.frame() -> annotation.list
   
-  #print("start for loop")
-  for(i in 1:length(annotation.list$annotation)){
-    #print(i)
-    #print(annotation.list$annotation[i])
-    #Fasta
-    scan(text = annotation.list$annotation[i], what = "", quiet=TRUE)%>%as.data.frame()->to.match
+  #Change column name
+  names(annotation.list) <- "annotation"
+  
+  #Create new column
+  annotation.list$potential.catalognumber<-NULL
+  
+  #for loop to grab potential voucher number
+  for(i in 1:nrow(annotation.list)){
     
-    to.match%<>%
-      str_split(., "MVZ")%>%as.data.frame()
+    # the annotations are sometimes seperated by spaces and somtiems by under scores. this section and the following if else statment strips the voucher
+    # numbers depending on the seperator
+    scan(text = annotation.list$annotation[i], what = "", sep = c(""), quiet=TRUE)%>%
+      as.data.frame()%>%nrow()->seperator.type
     
-    names(to.match)<-"potential.catalognumber"
-    
-    #print("from scan")
-    #print((to.match))
-    
-    to.match%<>%
-      filter(!stringr::str_detect(to.match$potential.catalognumber, ">"),
-             !stringr::str_detect(to.match$potential.catalognumber, "-"))%>%
-      #stringr::str_detect(to.match$potential.catalognumber, "[0-9]+")==TRUE,
-      #!stringr::str_detect(to.match$potential.catalognumber, ">"),
-      #stringr::str_detect(potential.catalognumber, "([A-Z]+)[0-9]+")==TRUE)%>%
-      mutate(potential.catalognumber=str_extract(potential.catalognumber, "[0-9]+"))%>%
-      na.omit()
-    
-    if(nrow(to.match)==0){
-      fill.missing<-data.frame(potential.catalognumber="Missing")
-      matched.data.frame<<-rbind(matched.data.frame, fill.missing)
+    if(seperator.type>1){
+      scan(text = annotation.list$annotation[i], what = "", sep = c(""), quiet=TRUE)%>%
+        as.data.frame()%>%
+        dplyr::rename("potential.catalognumber"=".")%>%
+        filter(!stringr::str_detect(potential.catalognumber, ">"),
+               !stringr::str_detect(potential.catalognumber, "-"),
+               !stringr::str_detect(potential.catalognumber, "\\("),
+               stringr::str_detect(potential.catalognumber, "\\d"))%>%
+        dplyr::slice(1)%>%
+        as.character()->potential.catalognumber
+      
+      annotation.list$potential.catalognumber[i]<-potential.catalognumber
     }
-    else{matched.data.frame<<-rbind(matched.data.frame, to.match)}
+    else{scan(text = annotation.list$annotation[i], what = "", sep = c("_"), quiet=TRUE)%>%
+        as.data.frame()%>%
+        dplyr::rename("potential.catalognumber"=".")%>%
+        filter(!stringr::str_detect(potential.catalognumber, ">"),
+               !stringr::str_detect(potential.catalognumber, "-"),
+               !stringr::str_detect(potential.catalognumber, "\\("),
+               stringr::str_detect(potential.catalognumber, "MVZ"))%>%
+        dplyr::slice(1)%>%
+        as.character()->potential.catalognumber
+      
+      annotation.list$potential.catalognumber[i]<-potential.catalognumber
+    }
     
   }
   
+  #make new column to remove any prefix from the voucher number and eliminate any straggler number possibilities
+  annotation.list%<>%
+    dplyr::mutate(catalog.number.only=str_extract(potential.catalognumber, "[0-9]+"))%>%
+    filter(str_length(catalog.number.only)>3)
   
-  working.label.df<-ecoregions%>%
-    filter(grepl(Specimen.name, scientific))%>%
-    dplyr::select(catalognum,decimallat,decimallon )%>%
+  return(annotation.list)
+  
+}
+
+#' Input dataframe of potential IDs and matches them with vertnet data
+#'
+#'  This function uses the ecoregions dataset to match up IDs between the vertnet data and the fasta file and to  make columns for genus, species, and subspecies for each sample
+#' It then outputs a dataframe containing this info.  
+#'
+#'
+#'@param input.file input should be the output from the get.potential.voucher.numbers() function or a dataframe that contains a list of potential IDs to be matched with vertnet data
+#'@return returns a list of matched IDs that are found in both the fasta files and the vertnet dataframes
+#'@export
+match.vernet.to.fasta<-function(input.file){
+  
+  input.file->annotation.list
+  
+  #grab only relevant columns from ecoregion dataframe
+  lat.long<-ecoregions%>%
+    dplyr::select(scientific, catalognum, decimallat,decimallon,New_label)%>%
     dplyr::mutate(catalog.number.only=str_extract(catalognum, "(?<=:)[0-9]+"))%>%
     dplyr::mutate(catalog.number.only=ifelse(is.na(catalog.number.only)==TRUE, catalognum, catalog.number.only))%>%
     unique()
   
-  stringdist_left_join(matched.data.frame,working.label.df,  
-                       by=c("potential.catalognumber"="catalog.number.only"),
-                       method = c("lv"),
-                       max_dist = 0)%>%
-    dplyr::select(potential.catalognumber,catalognum,decimallat,decimallon)->out
-  return(out)
+  
+  #make comparison lists to use in for loop  
+  does.this.list<-lat.long$catalognum
+  contain.these.values<-annotation.list$catalog.number.only
+  
+  #initialize data frame for loop
+  matching.id.data.frame<<-data.frame(scientific=character(),
+                                      catalognum=character(),
+                                      decimallat=numeric(),
+                                      decimallon=numeric(),
+                                      New_label=character(),
+                                      catalog.number.only=numeric(),
+                                      annotation=character(),
+                                      potential.catalognumber=character(),
+                                      catalog.number.only=numeric())
+  
+  
+  #for loop asking whether the lat long list from vertnet contains the stripped catalog/voucher numbers from the fasta files. 
+  for (i in 1:length(does.this.list)) {
+    for (a in 1:length(contain.these.values)) {
+      str_contains(does.this.list[i], contain.these.values[a]) -> link
+      
+      if (link == TRUE) {
+        cbind(lat.long[i, ], annotation.list[a, ]) -> int
+        matching.id.data.frame <<- rbind(matching.id.data.frame, int)
+      }
+    }
+  }
+  
+  #rename columns and reorder columns
+  names(matching.id.data.frame)<-c("scientific","catalognum","decimallat","decimallon","ecoregion_label","vernet.catalog.number.only",
+                                   "annotation","potential.catalognumber","genbank.catalog.number.only")
+  
+  #Make unique columns for genus species and subspecies 
+  
+  matching.id.data.frame$Genus<-NA
+  matching.id.data.frame$Species<-NA
+  matching.id.data.frame$subspecies<-NA
+  matching.id.data.frame$matching<-NA
+  
+  #for loop to grab genus species and subspecies, and to double check that the matched IDs are with the correct genus. 
+  for (i in 1:nrow(matching.id.data.frame)) {
+    ### Make columns for genus species and subspecies
+    scan(text = matching.id.data.frame$scientific[i], what = "", quiet = TRUE)[1] -> genus
+    scan(text = matching.id.data.frame$scientific[i], what = "", quiet = TRUE)[2] -> species
+    scan(text = matching.id.data.frame$scientific[i], what = "", quiet = TRUE)[3] -> subspecies
+    
+    ## print(genus)
+    ## print(species)
+    ## print(subspecies)
+    
+    matching.id.data.frame$Genus[i] <- genus
+    matching.id.data.frame$Species[i] <- species
+    matching.id.data.frame$subspecies[i] <- subspecies
+    
+    
+    if(str_contains(matching.id.data.frame$annotation[i],matching.id.data.frame$Genus[i])==TRUE){
+      matching.id.data.frame$matching[i] <- 1
+    }
+    else if(matching.id.data.frame$Genus[i]=="Artemisiospiza" & str_contains(matching.id.data.frame$annotation[i],"Amphispiza")){
+      matching.id.data.frame$matching[i] <- 1
+    }
+    else if(matching.id.data.frame$Genus[i]=="Cyanocitta" & str_contains(matching.id.data.frame$annotation[i],"Cyanosita")){
+      matching.id.data.frame$matching[i] <- 1
+    }
+    else{matching.id.data.frame$matching[i] <- 0
+    }
+    
+  }
+  
+  matching.id.data.frame%>%
+    filter(matching==1)%>%
+    dplyr::select(scientific:ecoregion_label, annotation)->Matched.vertnet.fasta.samples
+  
+  return(Matched.vertnet.fasta.samples)
 }
 
-#' Make PCA
+#' Subsets fasta file to only include individuals with matching vertnet information
 #'
-#' This function loads a file as a matrix. It assumes that the first column
-#' contains the rownames and the subsequent columns are the sample identifiers.
-#' Any rows with duplicated row names will be dropped with the first one being
-#' kepted.
+#' This function takes the output from the match.vertnet.to.fasta() function OR a dataframe containing matched Fasta ID's and vernet ID's and subsets the fasta file
+#' to only include individuals with matching vertnet info. 
 #'
-#'@param file.path Place the file path to your aligned fasta file here... PUT IT IN QUOTES
-#'@param Specimen.name What specimen are we working with? choose one of the following: "Aneides lugubris,Artemisiospiza belli belli,Batrachoseps nigriventris,Batrachoseps incognitus,Batrachoseps luciae,Batrachoseps gavilanensis,Batrachoseps attenuatus,Batrachoseps sp.,Charina bottae bottae,Charina bottae,Cyanocitta stelleri carbonacea,Diadophis punctatus vandenburghii,Elgaria multicarinata multicarinata,Elgaria multicarinata,Microtus californicus californicus,Sorex ornatus californicus,Sorex ornatus salarius,Taricha torosa,Thomomys bottae navus,Batrachoseps major,Diadophis punctatus,Microtus californicus sanctidiegi,Neotoma bryanti intermedia,Sorex ornatus ornatus,Thomomys bottae bottae,Microtus californicus kernensis,Microtus californicus aestuarinus,Sorex ornatus,Sorex ornatus sinuosus,Thomomys bottae pascalis,Contia tenuis,Contia longicaudae,Cyanocitta stelleri frontalis,Elgaria coerulea,Ensatina eschscholtzii oregonensis,Microtus californicus eximius,Sorex vagrans vagrans,Sorex ornatus sinuosus x Sorex vagrans vagrans,Taricha rivularis,Thomomys bottae laticeps,Artemisiospiza belli canescens,Elgaria multicarinata webbii,Microtus californicus mohavensis,Neotoma lepida lepida,Thomomys bottae perpallidus,Thomomys bottae riparius,Thomomys bottae albatus,Microtus californicus vallicola,Elgaria panamintina,Baeolophus inornatus inornatus,Glaucomys sabrinus flaviventris,Glaucomys sabrinus fuliginosus,Glaucomys sabrinus lascivus,Taricha granulosa,Baeolophus ridgwayi,Ensatina eschscholtzii platensis,Batrachoseps bramei,Batrachoseps gregarius,Batrachoseps relictus,Batrachoseps simatus,Batrachoseps stebbinsi,Batrachoseps regius,Batrachoseps altasierrae,Batrachoseps robustus,Batrachoseps diabolicus,Batrachoseps kawia,Ensatina eschscholtzii ssp.,Glaucomys sabrinus LASCIVUS,Neotoma bryanti x Neotoma lepida,Neotoma macrotis streatori,Batrachoseps minor,Neotoma fuscipes bullatior,Charina umbratica,Diadophis punctatus modestus,Glaucomys sabrinus californicus,Thomomys bottae nigricans
-#'@param title.input Place the title of your graph and file here-- PUT IT IN QUOTES
-#'@return This function returns a PCA describing variation in the FASTA file input, and a .csv output file that roughly
-#'groups individuals into clusters so you can match points on the PCA to an individual. 
+#'@param file.path.fasta full path to fasta file.
+#'@param list.matching.annotations list of matching fasta and vernet IDs to keep
+#'@return returns a list containing sequence information for only individuals with vertnet data
 #'@export
-run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
-  lat.long.dataframe<-assign.individuals.to.ecoregions(file.path.fasta, Specimen.name)
+subset.fasta.file<-function(file.path.fasta, list.matching.annotations){
+  read.fasta(file = file.path(file.path.fasta))->temp.fasta
+  list.matching.annotations->keep.list
+  my_fasta_sub <- temp.fasta[str_contains(keep.list$annotation,names(temp.fasta))==TRUE]
+  return(my_fasta_sub)
+}
+
+#' Takes the subsetted sequence data, count variants per site, filter out sites with >95% similarity, make data frame where each column represents a position 
+#'
+#' This function takes the output from subset.fasta.file() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.  
+#'
+#'@param subsetted.fasta subsetted list of sequence data
+#'@return returns a dataframe where each column is a sequence position, and each row represents an individual. This dataframe is suitable for running a pca analysis
+#'@export
+make.pca.data.frame<-function(subsetted.fasta){
   
-  fasta.data<-read.alignment(file = file.path(file.path.fasta),format="fasta")
+  fasta.data<-as.alignment(nb = length(subsetted.fasta), nam = names(subsetted.fasta), 
+                           seq = getSequence(subsetted.fasta), com = NA)
+  
   ####get number of individuals in dataset####
   num.inds<-as.numeric(fasta.data$nb)
   
@@ -170,91 +276,147 @@ run.pca.function<-function(file.path.fasta, Specimen.name ,title.input){
     dplyr::select(list.of.positions.to.keep.for.PCA$position)%>%
     dplyr::select(starts_with("X"))->pca.graph.data
   
-  replace.na.custom<-function(data){
-    replace_na(data, as.numeric(0.05))
-  }
-  
-  lapply(pca.graph.data, replace.na.custom)->pca.graph.data
-  
-  #Oh yes this was my problem! When we use princomp Your columns cannot exceed
-  #your samples, ignore for now. 
-  #princomp(pca.graph.data[,1:10])
+  sapply(pca.graph.data, replace_na, value=as.numeric(.01))%>%as.data.frame()->pca.graph.data
+  return(pca.graph.data)
+}
+
+#' Runs pca analysis on sequence dataframe
+#'
+#' This function takes the dataframe from the make.pca.data.frame() function and runs a pca analysis  
+#'
+#'@param fasta.to.pca.data input dataframe from make.pca.data.frame() function
+#'@param matched.vertnet.and.fasta input dataframe from match.vernet.to.fasta() function
+#'@param subsetted.fasta input dataframe from subset.fasta.file() function
+#'@return returns data frame with PC1 and PC2 information matched up per individual from fasta file 
+#'@export
+run.pca.analysis<-function(fasta.to.pca.data, matched.vertnet.and.fasta,subsetted.fasta){
+  fasta.to.pca.data->pca.graph.data
+  subsetted.fasta->subset.names
   
   locus.pca<-prcomp(as.data.frame(pca.graph.data))
-  
-  row.names(locus.pca$x)<-fasta.data$nam%>%unlist()
-  
-  #######################
-  ##OLD plotting of PCA##
-  #######################
-  # I want to keep this here incase we want to go pack ot this way of visualizing
-  #Final.PCA.plot<-fviz_pca_ind(locus.pca, 
-  #                             geom=c("point", "text"),
-  #                             pointsize = 3, 
-  #                             repel = TRUE,
-  #                             geom.var=c("point", "text"))
+  row.names(locus.pca$x)<-names(subset.names)
   
   PCA.ggplot.data<-locus.pca$x[,c(1:2)]
   
-  PCA.ggplot.data<-cbind(PCA.ggplot.data, lat.long.dataframe)
+  PCA.ggplot.data<-cbind(PCA.ggplot.data, matched.vertnet.and.fasta%>%arrange(annotation))%>%
+    dplyr::select(annotation, scientific:ecoregion_label, PC1, PC2)
   
-  data.frame(PC1.group=round(PCA.ggplot.data[,1], digits=0),
-             PC2.group=round(PCA.ggplot.data[,2], digits=0),
-             Specimen.ID=PCA.ggplot.data$potential.catalognumber)%>%
-    group_by(PC1.group, PC2.group)%>%
-    dplyr::summarise(number.inds=n(),
-                     list.IDs=str_c(Specimen.ID, collapse = ","))%>%
-    write.csv(., file.path("./", paste0(toString(title.input),"_table.csv")))
-  
-  ### Color Calculations ####
-  max.lat<-43
-  min.lat<-31
-  max.lon<-125
-  min.lon<-108
-  
-  
-  rescale.data.frame<-data.frame(PC1=c(1,1),
-                                 PC2=c(1,1),
-                                 potential.catalognumber=c("Rescale","Rescale"),
-                                 catalognum=c(0,0),
-                                 decimallat=c(min.lat, max.lat),
-                                 decimallon=c(min.lon, max.lon))
-  PCA.ggplot.data<-rbind(PCA.ggplot.data, rescale.data.frame)
-  
-  
-  PCA.ggplot.data%<>%
-    mutate(xcol=decimallat/ max.lat,
-           ycol=(abs(decimallon)/ max.lon))%>%
-    mutate(xcol=rescale(xcol, to=c(0,1)),
-           ycol=rescale(ycol, to=c(0,1)))%>%
-    filter(potential.catalognumber!="Rescale")
-  
-  PCA.ggplot.data$xcol<-replace_na(PCA.ggplot.data$xcol, 0)
-  PCA.ggplot.data$ycol<-replace_na(PCA.ggplot.data$ycol, 0)
-  
-  
-  PCA.ggplot.data%<>%
-    mutate(color.assignment=ifelse(is.na(decimallon)=="TRUE", "#808080", rgb(1, xcol, ycol)))
-  
-  col <- PCA.ggplot.data$color.assignment%>%as.data.frame()%>%unique()
-  names(col)<-"color"
-  
-  
-  Final.PCA.plot<-ggplot(data=PCA.ggplot.data, aes(x=PC1, y=PC2, colour=color.assignment))+
-    geom_point(data=PCA.ggplot.data, aes(x=PC1, y=PC2,colour=color.assignment),
-               size=4,position = position_jitter(width=.5, height=.5), alpha=.8)+
-    scale_colour_manual(values = col$color)
-  
-  
-  
-  #Final.PCA.plot<-ggplot(as.data.frame(PCA.ggplot.data), aes(x=PC1, y=PC2, label=row.names(PCA.ggplot.data)))+
-  #  geom_point(size=4,position = position_jitter(width=.5, height=.5), alpha=.6)+
-  #  geom_label_repel()
-  
-  Final.PCA.plot+
-    ggtitle(toString(title.input))+
-    theme_classic(18)+
-    theme(legend.position = "none")%>%
-    return()
+  return(PCA.ggplot.data)
   
 }
+
+#' make a table to export that describes the lat long range and PC1&2 values for each ecoregion  
+#'
+#' This function takes the output from run.pca.analysis() function and summarises the information  
+#'
+#'@param data.frame.graph.pca output from run.pca.analysis() function
+#'@param title.input informative name for table (e.g. cyprinodon_variegatus will be output as cyprinodon_variegatus_table.csv)
+#'@return outputs a .csv file containing summary info. NOTE: Table will be saved to the location of the working directory.
+#'@export
+make.table.of.ecoregiongroups<-function(data.frame.graph.pca, title.input){
+  
+  data.frame.graph.pca->PCA.ggplot.data
+  
+  PCA.ggplot.data%>%
+    group_by(ecoregion_label)%>%
+    dplyr::summarise(number.inds=n(),
+                     latitude=paste(min(decimallat), "-", max(decimallat)),
+                     longitude=paste(min(decimallon), "-", max(decimallon)),
+                     PC1=mean(PC1),
+                     PC2=mean(PC2),
+                     list.IDs=str_c(catalognum, collapse = ","))%>%
+    write.csv(., file.path("./", paste0(toString(title.input),"_table.csv")))
+  
+}
+
+#' Plot PCA results  
+#'
+#' This function takes the pca data frame from run.pca.analysis() function, and produces a PCA plot
+#' 
+#'@param data.frame.graph.pca input dataframe from the output of run.pca.analysis() function
+#'@param title.input input informative title that will be used in the plot and for saving the figure.
+#'@return Saves out a pdf of the pca to the working directory
+#'@export
+plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
+  PCA.ggplot.data <- left_join(data.frame.graph.pca, colors, by = c("decimallat", "decimallon"))
+  
+  
+  Final.PCA.plot <- ggplot(data = PCA.ggplot.data, aes(x = PC1, y = PC2, colour = color)) +
+    geom_point(
+      data = PCA.ggplot.data,
+      aes(
+        x = PC1, y = PC2,
+        colour = color,
+        shape = ecoregion_label
+      ),
+      size = 4,
+      stroke=4,
+      #position = position_jitter(width = .5, height = .5),
+      position = position_jitterdodge(jitter.width = .5, jitter.height = .5, dodge.width=.75),
+      alpha = 1
+    ) +
+    scale_colour_manual(values = PCA.ggplot.data$color) +
+    scale_shape_manual(values = c("Northern California Coast Ranges and Coast"=16,
+                                  "Central California Coast Ranges and Coast"=17,
+                                  "Klamath Mountains"=18,                         
+                                  "Southern California Coast"=19,                 
+                                  "Central Valley"=3,                            
+                                  "Southern California Mountains and Valleys"=4, 
+                                  "Sierra Nevada"=5,                            
+                                  "Southern Cascades"=6,                         
+                                  "Mojave_Sonoran"=8,                            
+                                  "Modoc Plateau"=1,                             
+                                  "Basin"=11,                                     
+                                  "Colorado Desert"=0   
+    ))+
+    theme_classic(18) +
+    theme(legend.position = "none")
+  
+  
+  Final.PCA.plot +
+    ggtitle(toString(title.input))->save.graph
+  ggexport(save.graph, filename=toString(paste(getwd(), paste0(title.input,"_PCAgraph.pdf"), sep="/")))
+  
+  Final.PCA.plot +
+    ggtitle(toString(title.input)) %>%  
+    return()
+}
+
+#' Runs the entire fasta to pca pipeline  
+#'
+#' This function turns a fasta input into a pca based on the matches found in teh vertnet dataframe  
+#'
+#'@param file.path.fasta full path to fasta files. 
+#'@param save.filename Input informative title to be used for tables and graphs
+#'@return returns .csv table with summary information and a PCA graph. Both files will be saved to wherever the working directory is set. 
+#'@export
+fasta.to.pca<-function(file.path.fasta, save.filename){
+  #Variables that are reused
+  file.location<-file.path.fasta
+  title.table<-save.filename
+  title.graph<-save.filename
+  #step1
+  #print("step 1: get.potential.voucher.numbers")
+  get.potential.voucher.numbers(file.path.fasta =file.location)->potential.matches
+  #step2
+  #print("step 2: match.vernet.to.fasta")
+  match.vernet.to.fasta(input.file = potential.matches)->final.matched.vertnet.and.fasta
+  #step3
+  #print("step 3: subset.fasta.file")
+  subset.fasta.file(file.path.fasta = file.location,
+                    list.matching.annotations = final.matched.vertnet.and.fasta)->subsetted.fasta.file
+  #step 4
+  #print("step 4: make.pca.data.frame")
+  make.pca.data.frame(subsetted.fasta = subsetted.fasta.file)->subsetted.fasta.to.pca.df
+  #step 5
+  #print("step 5: run.pca.analysis")
+  run.pca.analysis(fasta.to.pca.data = subsetted.fasta.to.pca.df, 
+                   matched.vertnet.and.fasta = final.matched.vertnet.and.fasta,
+                   subsetted.fasta = subsetted.fasta.file)->data.frame.graph.pca
+  #step 6A
+  #make.table.of.ecoregiongroups(data.frame.graph.pca, title.input = as.character(title.table))
+  #step 6B
+  #print("step 6: Plot pca")
+  plot.PCA.Results(data.frame.graph.pca, title.input = as.character(title.graph))%>%return()
+}
+
