@@ -5,7 +5,7 @@ devtools::install_github("stjohn3/R_packages",subdir="BceenetPCAPackage", force=
 library(BceenetPCAPackage)
 
 #Look at the help page
-#?BceenetPCAPackage::run.pca.function
+?BceenetPCAPackage::fasta.to.pca
 
 ##Example
 library(librarian)
