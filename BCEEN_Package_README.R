@@ -5,7 +5,7 @@ devtools::install_github("stjohn3/R_packages",subdir="BceenetPCAPackage", force=
 library(BceenetPCAPackage)
 
 #Look at the help page
-?BceenetPCAPackage::fasta.to.pca
+?BceenetPCAPackage::subset.fasta.file
 
 ##Example
 library(librarian)
@@ -65,37 +65,35 @@ Species<-c("Taricha",
            "Glaucomys",
            "Thomomys",
            "Contia",
-           "Batrachoseps",
+           "Batrachoseps_675",
            "Sorex",
            "Ensatina",
-           "Batrachoseps",
+           "Batrachoseps_186",
            "Aneides",
-           "Batrachoseps")
+           "Batrachoseps_407")
 
 
 for(i in 1:length(Files)){
    fasta.to.pca(Files[i], Species[i])
 }
 
+## Example to check pipelien#
+### Pipe line####
 
-colors<-read.csv("/Users/mickey7210/Desktop/BCEEnet_ShinyApp/Check_Matching_IDs/colors.new.gradient.May2022.csv")
-setwd("~/Downloads/")
-fasta.to.pca("./Batrachoseps_nigriventris_1867190792.fasta", "Batrachoseps")
+#Step 1
+get.potential.voucher.numbers("./AlignedFastaFiles/Taricha_75857949.fasta")%>%
+   match.vernet.to.fasta()->matched.ID.list
+  
+#Step 2 
+subset.fasta.file("./AlignedFastaFiles/Taricha_75857949.fasta",matched.ID.list)%>%
+   make.pca.data.frame()->PCA.dataframe
 
-get.potential.voucher.numbers("./Batrachoseps_nigriventris_1867190792.fasta")%>%
-   match.vernet.to.fasta()->list
+#Step 3   
+run.pca.analysis(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Taricha_75857949.fasta",matched.ID.list))->PCA.results
 
-   subset.fasta.file("Batrachoseps_nigriventris_1867190792.fasta", list)->subset.fasta
+#Step 4   
+make.table.of.ecoregiongroups(PCA.results, "Testing Pipeline Taricha")
 
-   make.pca.data.frame(subset.fasta)->df.pca
-   
-   run.pca.analysis(df.pca,list,subset.fasta)->Pca.out
-   make.table.of.ecoregiongroups(Pca.out, "Batrachoseps")
-   
-   
-   left_join(Pca.out, colors, by = c("decimallat", "decimallon"))->test
-   %>%group_by(New_label, color)%>%dplyr::summarise(count=n())%>%arrange(New_label, count)%>%View()
-   
-   
-   colors%>%View()
+#Step 5   
+plot.PCA.Results(PCA.results, "Testing Pipeline Taricha")
    
