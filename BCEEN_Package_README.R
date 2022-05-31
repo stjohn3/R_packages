@@ -78,5 +78,24 @@ for(i in 1:length(Files)){
 }
 
 
+colors<-read.csv("/Users/mickey7210/Desktop/BCEEnet_ShinyApp/Check_Matching_IDs/colors.new.gradient.May2022.csv")
+setwd("~/Downloads/")
+fasta.to.pca("./Batrachoseps_nigriventris_1867190792.fasta", "Batrachoseps")
 
+get.potential.voucher.numbers("./Batrachoseps_nigriventris_1867190792.fasta")%>%
+   match.vernet.to.fasta()->list
 
+   subset.fasta.file("Batrachoseps_nigriventris_1867190792.fasta", list)->subset.fasta
+
+   make.pca.data.frame(subset.fasta)->df.pca
+   
+   run.pca.analysis(df.pca,list,subset.fasta)->Pca.out
+   make.table.of.ecoregiongroups(Pca.out, "Batrachoseps")
+   
+   
+   left_join(Pca.out, colors, by = c("decimallat", "decimallon"))->test
+   %>%group_by(New_label, color)%>%dplyr::summarise(count=n())%>%arrange(New_label, count)%>%View()
+   
+   
+   colors%>%View()
+   

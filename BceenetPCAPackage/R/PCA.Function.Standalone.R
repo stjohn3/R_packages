@@ -355,7 +355,7 @@ plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
       position = position_jitterdodge(jitter.width = .5, jitter.height = .5, dodge.width=.75),
       alpha = 1
     ) +
-    scale_colour_manual(values = PCA.ggplot.data$color) +
+    scale_colour_identity() +
     scale_shape_manual(values = c("Northern California Coast Ranges and Coast"=16,
                                   "Central California Coast Ranges and Coast"=17,
                                   "Klamath Mountains"=18,                         
@@ -414,7 +414,7 @@ fasta.to.pca<-function(file.path.fasta, save.filename){
                    matched.vertnet.and.fasta = final.matched.vertnet.and.fasta,
                    subsetted.fasta = subsetted.fasta.file)->data.frame.graph.pca
   #step 6A
-  #make.table.of.ecoregiongroups(data.frame.graph.pca, title.input = as.character(title.table))
+  make.table.of.ecoregiongroups(data.frame.graph.pca, title.input = as.character(title.table))
   #step 6B
   #print("step 6: Plot pca")
   plot.PCA.Results(data.frame.graph.pca, title.input = as.character(title.graph))%>%return()
