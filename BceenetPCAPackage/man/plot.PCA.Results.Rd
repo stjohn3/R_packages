@@ -4,7 +4,7 @@
 \alias{plot.PCA.Results}
 \title{Plot PCA results}
 \usage{
-\method{plot}{PCA.Results}(data.frame.graph.pca, title.input)
+\method{plot}{PCA.Results}(data.frame.graph.pca, title.input, PC.lables.input)
 }
 \arguments{
 \item{data.frame.graph.pca}{input dataframe from the output of run.pca.analysis() function}

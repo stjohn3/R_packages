@@ -306,6 +306,28 @@ run.pca.analysis<-function(fasta.to.pca.data, matched.vertnet.and.fasta,subsette
   
 }
 
+#' Grabs PC1 and PC2 percent variance explained for the graph
+#'
+#' This function takes the dataframe from the make.pca.data.frame() function and runs a pca analysis and outputs a matrix with the labels for the graph 
+#'
+#'@param fasta.to.pca.data input dataframe from make.pca.data.frame() function
+#'@param matched.vertnet.and.fasta input dataframe from match.vernet.to.fasta() function
+#'@param subsetted.fasta input dataframe from subset.fasta.file() function
+#'@return returns data frame with PC1 and PC2 information matched up per individual from fasta file 
+#'@export
+PC.Labels<-function(fasta.to.pca.data, matched.vertnet.and.fasta,subsetted.fasta){
+  fasta.to.pca.data->pca.graph.data
+  subsetted.fasta->subset.names
+  
+  locus.pca<-prcomp(as.data.frame(pca.graph.data))
+  summary(locus.pca)["importance"]%>%as.data.frame()->summary.out
+  
+  summary.out["Proportion of Variance", 1:2]%>%as.matrix()->Graph.labels
+  
+  return(Graph.labels)
+  
+}
+
 #' make a table to export that describes the lat long range and PC1&2 values for each ecoregion  
 #'
 #' This function takes the output from run.pca.analysis() function and summarises the information  
@@ -338,8 +360,12 @@ make.table.of.ecoregiongroups<-function(data.frame.graph.pca, title.input){
 #'@param title.input input informative title that will be used in the plot and for saving the figure.
 #'@return Saves out a pdf of the pca to the working directory
 #'@export
-plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
+plot.PCA.Results <- function(data.frame.graph.pca, title.input, PC.lables.input) {
   PCA.ggplot.data <- left_join(data.frame.graph.pca, colors, by = c("decimallat", "decimallon"))%>%unique()
+  PC.lables.use<-PC.lables.input
+  
+  pc1.label<-paste0("PC1 ",(PC.lables.use[1]*100)%>%round(., digits=2), "%")
+  pc2.label<-paste0("PC2 ",(PC.lables.use[2]*100)%>%round(., digits=2), "%")
 
   Final.PCA.plot <- ggplot(data = PCA.ggplot.data, aes(x = PC1, y = PC2, colour = color)) +
     geom_point(
@@ -369,6 +395,7 @@ plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
                                   "Basin"=11,                                     
                                   "Colorado Desert"=0   
     ))+
+    labs(x=pc1.label, y=pc2.label)
     theme_classic(18) +
     theme(legend.position = "none")
   
@@ -413,10 +440,18 @@ fasta.to.pca<-function(file.path.fasta, save.filename){
   run.pca.analysis(fasta.to.pca.data = subsetted.fasta.to.pca.df, 
                    matched.vertnet.and.fasta = final.matched.vertnet.and.fasta,
                    subsetted.fasta = subsetted.fasta.file)->data.frame.graph.pca
+  
+  #Step 5b
+  #get labels for percent variance graph
+  run.pca.analysis(fasta.to.pca.data = subsetted.fasta.to.pca.df, 
+                   matched.vertnet.and.fasta = final.matched.vertnet.and.fasta,
+                   subsetted.fasta = subsetted.fasta.file)->labels.out
   #step 6A
   make.table.of.ecoregiongroups(data.frame.graph.pca, title.input = as.character(title.table))
   #step 6B
   #print("step 6: Plot pca")
-  plot.PCA.Results(data.frame.graph.pca, title.input = as.character(title.graph))%>%return()
+  plot.PCA.Results(data.frame.graph.pca, 
+                   title.input = as.character(title.graph),
+                   PC.lables.input=labels.out)%>%return()
 }
 

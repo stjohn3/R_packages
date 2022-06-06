@@ -94,8 +94,8 @@ subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",mat
 #Step 3   
 run.pca.analysis(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->PCA.results
 
-#Step 4   
-make.table.of.ecoregiongroups(PCA.results, "Testing Pipeline Artemisiospiza")
+#step 3.5
+PC.labels(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->graph.labels
 
 #Step 5   
-plot.PCA.Results(PCA.results, "Testing Pipeline Artemisiospiza")
+plot.PCA.Results(PCA.results, "Testing Pipeline Artemisiospiza", PC.lables.input=graph.labels)

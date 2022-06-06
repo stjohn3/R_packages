@@ -2,6 +2,7 @@
 
 S3method(plot,PCA.Results)
 S3method(subset,fasta.file)
+export(PC.Labels)
 export(fasta.to.pca)
 export(get.potential.voucher.numbers)
 export(make.pca.data.frame)
