@@ -352,7 +352,7 @@ plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
       size = 4,
       stroke=2,
       #position = position_jitter(width = .5, height = .5),
-      position = position_jitterdodge(jitter.width = .5, jitter.height = .5, dodge.width=.75),
+      position = position_jitterdodge(jitter.width = .9, jitter.height = .9, dodge.width=.9),
       alpha = 1
     ) +
     scale_colour_identity() +
