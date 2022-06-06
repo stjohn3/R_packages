@@ -395,7 +395,7 @@ plot.PCA.Results <- function(data.frame.graph.pca, title.input, PC.lables.input)
                                   "Basin"=11,                                     
                                   "Colorado Desert"=0   
     ))+
-    labs(x=pc1.label, y=pc2.label)
+    labs(x=pc1.label, y=pc2.label)+
     theme_classic(18) +
     theme(legend.position = "none")
   
@@ -443,7 +443,7 @@ fasta.to.pca<-function(file.path.fasta, save.filename){
   
   #Step 5b
   #get labels for percent variance graph
-  run.pca.analysis(fasta.to.pca.data = subsetted.fasta.to.pca.df, 
+  PC.Labels(fasta.to.pca.data = subsetted.fasta.to.pca.df, 
                    matched.vertnet.and.fasta = final.matched.vertnet.and.fasta,
                    subsetted.fasta = subsetted.fasta.file)->labels.out
   #step 6A

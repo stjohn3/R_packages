@@ -5,7 +5,7 @@ devtools::install_github("stjohn3/R_packages",subdir="BceenetPCAPackage", force=
 library(BceenetPCAPackage)
 
 #Look at the help page
-?BceenetPCAPackage::subset.fasta.file
+?BceenetPCAPackage::PC.Labels()
 
 ##Example
 library(librarian)
@@ -95,7 +95,7 @@ subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",mat
 run.pca.analysis(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->PCA.results
 
 #step 3.5
-PC.labels(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->graph.labels
+PC.Labels(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->graph.labels
 
 #Step 5   
 plot.PCA.Results(PCA.results, "Testing Pipeline Artemisiospiza", PC.lables.input=graph.labels)
