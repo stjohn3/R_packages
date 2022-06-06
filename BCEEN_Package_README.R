@@ -1,7 +1,7 @@
 #how to install package 
 devtools::install_github("stjohn3/R_packages",subdir="BceenetPCAPackage", force=TRUE)
 
-#how to load package 
+3#how to load package 
 library(BceenetPCAPackage)
 
 #Look at the help page
@@ -51,36 +51,39 @@ Files<-c(
    "./AlignedFastaFiles/Ensatina_eschscholtzii_339521622_aligned_original.fasta",
    "./AlignedFastaFiles/Batrachoseps_nigriventris_1867190792.fasta",
    "./AlignedFastaFiles/Aneides_lugubris_33641515.fasta",
-   "./AlignedFastaFiles/Batrachoseps_407098425.fasta"
+   "./AlignedFastaFiles/Batrachoseps_407098425.fasta",
+   "./AlignedFastaFiles/Neotoma_112046140.fasta"
 )
-Species<-c("Taricha",
-           "Elgaria",
-           "Baeolophus",
-           "Cyanositta",
-           "Charina",
-           "Diadophis",
-           "Artemisiospiza",
-           "Microtus_1073",
-           "Microtus_1487",
-           "Glaucomys",
-           "Thomomys",
-           "Contia",
-           "Batrachoseps_675",
-           "Sorex",
-           "Ensatina",
-           "Batrachoseps_186",
-           "Aneides",
-           "Batrachoseps_407")
+Species<-c(
+            "Taricha",
+            "Elgaria",
+            "Baeolophus",
+            "Cyanositta",
+            "Charina",
+            "Diadophis",
+            "Artemisiospiza",
+            "Microtus_1073",
+            "Microtus_1487",
+            "Glaucomys",
+            "Thomomys",
+            "Contia",
+            "Batrachoseps_675",
+            "Sorex",
+            "Ensatina",
+            "Batrachoseps_186",
+            "Aneides",
+            "Batrachoseps_407",
+           "Neotoma")
 
 
 for(i in 1:length(Files)){
    fasta.to.pca(Files[i], Species[i])
 }
 
-# Run one file, Example:
+#### Run one file, Example: ####
 fasta.to.pca("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta","Artemisiospiza" )
 
-## Example to check pipelien#
+## Example to check pipeline ##
 ### Pipe line####
 
 #Step 1
