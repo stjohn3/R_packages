@@ -350,7 +350,7 @@ plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
         shape = ecoregion_label
       ),
       size = 4,
-      stroke=3,
+      stroke=2,
       #position = position_jitter(width = .5, height = .5),
       position = position_jitterdodge(jitter.width = .5, jitter.height = .5, dodge.width=.75),
       alpha = 1
