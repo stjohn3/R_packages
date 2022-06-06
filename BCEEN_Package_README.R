@@ -77,8 +77,8 @@ for(i in 1:length(Files)){
    fasta.to.pca(Files[i], Species[i])
 }
 
+# Run one file, Example:
 fasta.to.pca("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta","Artemisiospiza" )
-
 
 ## Example to check pipelien#
 ### Pipe line####
@@ -95,8 +95,7 @@ subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",mat
 run.pca.analysis(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->PCA.results
 
 #Step 4   
-make.table.of.ecoregiongroups(PCA.results, "Testing Pipeline Taricha")
+make.table.of.ecoregiongroups(PCA.results, "Testing Pipeline Artemisiospiza")
 
 #Step 5   
-plot.PCA.Results(PCA.results, "Testing Pipeline Taricha")
-   
+plot.PCA.Results(PCA.results, "Testing Pipeline Artemisiospiza")
