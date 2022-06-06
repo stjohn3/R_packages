@@ -178,6 +178,7 @@ subset.fasta.file<-function(file.path.fasta, list.matching.annotations){
   return(my_fasta_sub)
 }
 
+
 #' Takes the subsetted sequence data, count variants per site, filter out sites with >95% similarity, make data frame where each column represents a position 
 #'
 #' This function takes the output from subset.fasta.file() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.  
@@ -338,9 +339,8 @@ make.table.of.ecoregiongroups<-function(data.frame.graph.pca, title.input){
 #'@return Saves out a pdf of the pca to the working directory
 #'@export
 plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
-  PCA.ggplot.data <- left_join(data.frame.graph.pca, colors, by = c("decimallat", "decimallon"))
-  
-  
+  PCA.ggplot.data <- left_join(data.frame.graph.pca, colors, by = c("decimallat", "decimallon"))%>%unique()
+
   Final.PCA.plot <- ggplot(data = PCA.ggplot.data, aes(x = PC1, y = PC2, colour = color)) +
     geom_point(
       data = PCA.ggplot.data,
@@ -350,7 +350,7 @@ plot.PCA.Results <- function(data.frame.graph.pca, title.input) {
         shape = ecoregion_label
       ),
       size = 4,
-      stroke=4,
+      stroke=3,
       #position = position_jitter(width = .5, height = .5),
       position = position_jitterdodge(jitter.width = .5, jitter.height = .5, dodge.width=.75),
       alpha = 1

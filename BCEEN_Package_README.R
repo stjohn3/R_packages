@@ -77,19 +77,22 @@ for(i in 1:length(Files)){
    fasta.to.pca(Files[i], Species[i])
 }
 
+fasta.to.pca("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta","Artemisiospiza" )
+
+
 ## Example to check pipelien#
 ### Pipe line####
 
 #Step 1
-get.potential.voucher.numbers("./AlignedFastaFiles/Taricha_75857949.fasta")%>%
+get.potential.voucher.numbers("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta")%>%
    match.vernet.to.fasta()->matched.ID.list
   
 #Step 2 
-subset.fasta.file("./AlignedFastaFiles/Taricha_75857949.fasta",matched.ID.list)%>%
+subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list)%>%
    make.pca.data.frame()->PCA.dataframe
 
 #Step 3   
-run.pca.analysis(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Taricha_75857949.fasta",matched.ID.list))->PCA.results
+run.pca.analysis(PCA.dataframe,matched.ID.list,subset.fasta.file("./AlignedFastaFiles/Artemisiospiza_belli_397327424.fasta",matched.ID.list))->PCA.results
 
 #Step 4   
 make.table.of.ecoregiongroups(PCA.results, "Testing Pipeline Taricha")
