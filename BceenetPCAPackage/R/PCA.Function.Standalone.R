@@ -171,7 +171,7 @@ match.vernet.to.fasta<-function(input.file){
 #'@param list.matching.annotations list of matching fasta and vernet IDs to keep
 #'@return returns a list containing sequence information for only individuals with vertnet data
 #'@export
-subset.fasta.file<-function(file.path.fasta, list.matching.annotations){
+fasta.file.subset<-function(file.path.fasta, list.matching.annotations){
   read.fasta(file = file.path(file.path.fasta))->temp.fasta
   list.matching.annotations->keep.list
   my_fasta_sub <- temp.fasta[str_contains(keep.list$annotation,names(temp.fasta))==TRUE]
@@ -180,7 +180,7 @@ subset.fasta.file<-function(file.path.fasta, list.matching.annotations){
 
 #' Takes the subsetted sequence data, count variants per site, filter out sites with >95% similarity, make data frame where each column represents a position
 #'
-#' This function takes the output from subset.fasta.file() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.
+#' This function takes the output from fasta.file.subset() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.
 #'
 #'@param subsetted.fasta subsetted list of sequence data
 #'@return returns a dataframe where each column is a sequence position, and each row represents an individual. This dataframe is suitable for running a pca analysis
@@ -294,7 +294,7 @@ make.pca.data.frame<-function(subsetted.fasta){
 #'
 #'@param fasta.to.pca.data input dataframe from make.pca.data.frame() function
 #'@param matched.vertnet.and.fasta input dataframe from match.vernet.to.fasta() function
-#'@param subsetted.fasta input dataframe from subset.fasta.file() function
+#'@param subsetted.fasta input dataframe from fasta.file.subset() function
 #'@return returns data frame with PC1 and PC2 information matched up per individual from fasta file
 #'@export
 run.pca.analysis<-function(fasta.to.pca.data, matched.vertnet.and.fasta,subsetted.fasta){
@@ -333,7 +333,7 @@ run.pca.analysis<-function(fasta.to.pca.data, matched.vertnet.and.fasta,subsette
 #'
 #'@param fasta.to.pca.data input dataframe from make.pca.data.frame() function
 #'@param matched.vertnet.and.fasta input dataframe from match.vernet.to.fasta() function
-#'@param subsetted.fasta input dataframe from subset.fasta.file() function
+#'@param subsetted.fasta input dataframe from fasta.file.subset() function
 #'@return returns data frame with PC1 and PC2 information matched up per individual from fasta file
 #'@export
 PC.Labels<-function(fasta.to.pca.data, matched.vertnet.and.fasta,subsetted.fasta){
@@ -452,8 +452,8 @@ fasta.to.pca<-function(file.path.fasta, save.filename){
   #print("step 2: match.vernet.to.fasta")
   match.vernet.to.fasta(input.file = potential.matches)->final.matched.vertnet.and.fasta
   #step3
-  #print("step 3: subset.fasta.file")
-  subset.fasta.file(file.path.fasta = file.location,
+  #print("step 3: fasta.file.subset")
+  fasta.file.subset(file.path.fasta = file.location,
                     list.matching.annotations = final.matched.vertnet.and.fasta)->subsetted.fasta.file
   #step 4
   #print("step 4: make.pca.data.frame")

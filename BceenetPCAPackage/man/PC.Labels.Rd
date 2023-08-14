@@ -11,7 +11,7 @@ PC.Labels(fasta.to.pca.data, matched.vertnet.and.fasta, subsetted.fasta)
 
 \item{matched.vertnet.and.fasta}{input dataframe from match.vernet.to.fasta() function}
 
-\item{subsetted.fasta}{input dataframe from subset.fasta.file() function}
+\item{subsetted.fasta}{input dataframe from fasta.file.subset() function}
 }
 \value{
 returns data frame with PC1 and PC2 information matched up per individual from fasta file

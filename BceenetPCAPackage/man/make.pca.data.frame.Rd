@@ -13,5 +13,5 @@ make.pca.data.frame(subsetted.fasta)
 returns a dataframe where each column is a sequence position, and each row represents an individual. This dataframe is suitable for running a pca analysis
 }
 \description{
-This function takes the output from subset.fasta.file() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.
+This function takes the output from fasta.file.subset() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.
 }
