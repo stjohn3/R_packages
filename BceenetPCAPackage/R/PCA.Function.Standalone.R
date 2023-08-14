@@ -178,7 +178,6 @@ subset.fasta.file<-function(file.path.fasta, list.matching.annotations){
   return(my_fasta_sub)
 }
 
-
 #' Takes the subsetted sequence data, count variants per site, filter out sites with >95% similarity, make data frame where each column represents a position
 #'
 #' This function takes the output from subset.fasta.file() or a fasta file (converted to a list using the sequinr package) and produces a dataframe that can be used for a pca.
